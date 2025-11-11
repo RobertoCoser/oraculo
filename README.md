@@ -34,14 +34,16 @@ Siga estes passos para configurar e rodar o projeto localmente:
 ### 1. Clonar o Repositório
 
 ```bash
+
 git clone [https://github.com/RobertoCoser/oraculo.git](https://github.com/RobertoCoser/oraculo.git)
 cd oraculo
 
+```
 
 ### 2. Configurar e Rodar o Backend
 O backend é responsável pela API e conexão com o banco de dados.
 
-Bash
+```bash
 
 # 1. Navegue até a pasta do backend
 cd backend
@@ -52,12 +54,15 @@ npm install
 # 3. Inicie o servidor
 # (Certifique-se que o seu MongoDB Server está rodando localmente)
 npm run dev
+
+```
 O servidor backend estará rodando em http://localhost:3001.
+
 
 ### 3. Configurar e Rodar o Frontend
 O frontend é a interface visual feita em React. (Abra um novo terminal para este passo).
 
-Bash
+```bash
 
 # 1. Navegue até a pasta do frontend (na raiz do projeto)
 cd frontend
@@ -67,4 +72,6 @@ npm install
 
 # 3. Inicie a aplicação
 npm run dev
+
+```
 A aplicação estará disponível em http://localhost:5173 (ou outra porta indicada pelo Vite).

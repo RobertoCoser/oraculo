@@ -1,0 +1,543 @@
+_type: export
+__export_format: 4
+__export_date: 2025-11-12T00:00:00.000Z
+__export_source: insomnia.desktop.app:v2023.5.8
+resources:
+  - _id: wrk_livros_api
+    _type: workspace
+    name: API Gerenciamento de Livros
+    description: Coleção de testes para a API de gerenciamento de livros
+    scope: collection
+    parentId: null
+
+  - _id: env_base
+    _type: environment
+    name: Base Environment
+    data:
+      base_url: http://localhost:3000
+      content_type: application/json
+    dataPropertyOrder:
+      "&":
+        - base_url
+        - content_type
+    color: null
+    isPrivate: false
+    metaSortKey: 1000000000000
+    parentId: wrk_livros_api
+
+  - _id: env_dev
+    _type: environment
+    name: Development
+    data:
+      base_url: http://localhost:3000
+    dataPropertyOrder:
+      "&":
+        - base_url
+    color: "#7d69cb"
+    isPrivate: false
+    metaSortKey: 1000000000001
+    parentId: env_base
+
+  - _id: env_prod
+    _type: environment
+    name: Production
+    data:
+      base_url: https://api.seudominio.com
+    dataPropertyOrder:
+      "&":
+        - base_url
+    color: "#ff6b6b"
+    isPrivate: false
+    metaSortKey: 1000000000002
+    parentId: env_base
+
+  # ============================================
+  # PASTA: US01 - Cadastrar Livros
+  # ============================================
+  - _id: fld_cadastrar_livros
+    _type: request_group
+    name: US01 - Cadastrar Livros
+    description: Endpoints para cadastrar novos livros no sistema
+    environment: {}
+    environmentPropertyOrder: null
+    metaSortKey: -1000000000000
+    parentId: wrk_livros_api
+
+  - _id: req_cadastrar_livro_sucesso
+    _type: request
+    name: Cadastrar Livro - Sucesso
+    description: Cadastra um novo livro com todos os campos válidos
+    url: "{{ _.base_url }}/livros"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "titulo": "Clean Code",
+          "autor": "Robert C. Martin",
+          "ano": 2008,
+          "categoria": "Programação"
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: "{{ _.content_type }}"
+    authentication: {}
+    metaSortKey: -1000000000000
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_cadastrar_livros
+
+  - _id: req_cadastrar_livro_completo
+    _type: request
+    name: Cadastrar Livro - Dados Completos
+    description: Cadastra um livro brasileiro clássico
+    url: "{{ _.base_url }}/livros"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "titulo": "Dom Casmurro",
+          "autor": "Machado de Assis",
+          "ano": 1899,
+          "categoria": "Romance"
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: "{{ _.content_type }}"
+    authentication: {}
+    metaSortKey: -999999999999
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_cadastrar_livros
+
+  - _id: req_cadastrar_livro_sem_titulo
+    _type: request
+    name: Cadastrar Livro - Sem Título (400)
+    description: Tenta cadastrar livro sem título - deve retornar erro 400
+    url: "{{ _.base_url }}/livros"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "autor": "Autor Teste",
+          "ano": 2023,
+          "categoria": "Teste"
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: "{{ _.content_type }}"
+    authentication: {}
+    metaSortKey: -999999999998
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_cadastrar_livros
+
+  - _id: req_cadastrar_livro_sem_autor
+    _type: request
+    name: Cadastrar Livro - Sem Autor (400)
+    description: Tenta cadastrar livro sem autor - deve retornar erro 400
+    url: "{{ _.base_url }}/livros"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "titulo": "Livro Sem Autor",
+          "ano": 2023,
+          "categoria": "Teste"
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: "{{ _.content_type }}"
+    authentication: {}
+    metaSortKey: -999999999997
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_cadastrar_livros
+
+  - _id: req_cadastrar_livro_minimo
+    _type: request
+    name: Cadastrar Livro - Campos Mínimos
+    description: Cadastra livro apenas com título e autor (campos obrigatórios)
+    url: "{{ _.base_url }}/livros"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "titulo": "Livro Simples",
+          "autor": "Autor Desconhecido"
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: "{{ _.content_type }}"
+    authentication: {}
+    metaSortKey: -999999999996
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_cadastrar_livros
+
+  # ============================================
+  # PASTA: US04 - Listar Livros
+  # ============================================
+  - _id: fld_listar_livros
+    _type: request_group
+    name: US04 - Listar Livros
+    description: Endpoints para listar livros cadastrados
+    environment: {}
+    environmentPropertyOrder: null
+    metaSortKey: -2000000000000
+    parentId: wrk_livros_api
+
+  - _id: req_listar_todos_livros
+    _type: request
+    name: Listar Todos os Livros
+    description: Retorna todos os livros cadastrados no sistema
+    url: "{{ _.base_url }}/livros"
+    method: GET
+    body: {}
+    parameters: []
+    headers: []
+    authentication: {}
+    metaSortKey: -2000000000000
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_listar_livros
+
+  # ============================================
+  # PASTA: US03 - Excluir Livros
+  # ============================================
+  - _id: fld_excluir_livros
+    _type: request_group
+    name: US03 - Excluir Livros
+    description: Endpoints para excluir livros do sistema
+    environment: {}
+    environmentPropertyOrder: null
+    metaSortKey: -3000000000000
+    parentId: wrk_livros_api
+
+  - _id: req_excluir_livro_valido
+    _type: request
+    name: Excluir Livro - ID Válido
+    description: "Exclui um livro existente. IMPORTANTE: Substitua {id} por um ID válido obtido da listagem"
+    url: "{{ _.base_url }}/livros/673363d5e0c123456789abcd"
+    method: DELETE
+    body: {}
+    parameters: []
+    headers: []
+    authentication: {}
+    metaSortKey: -3000000000000
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_excluir_livros
+
+  - _id: req_excluir_livro_inexistente
+    _type: request
+    name: Excluir Livro - ID Inexistente (404)
+    description: Tenta excluir livro com ID válido mas inexistente - deve retornar 404
+    url: "{{ _.base_url }}/livros/507f1f77bcf86cd799439011"
+    method: DELETE
+    body: {}
+    parameters: []
+    headers: []
+    authentication: {}
+    metaSortKey: -2999999999999
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_excluir_livros
+
+  - _id: req_excluir_livro_id_invalido
+    _type: request
+    name: Excluir Livro - ID Inválido (400)
+    description: Tenta excluir livro com ID inválido - deve retornar 400
+    url: "{{ _.base_url }}/livros/id-invalido-123"
+    method: DELETE
+    body: {}
+    parameters: []
+    headers: []
+    authentication: {}
+    metaSortKey: -2999999999998
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_excluir_livros
+
+  # ============================================
+  # PASTA: Testes de Fluxo Completo
+  # ============================================
+  - _id: fld_fluxo_completo
+    _type: request_group
+    name: Fluxo Completo - CRUD
+    description: Sequência de requisições para testar o fluxo completo
+    environment: {}
+    environmentPropertyOrder: null
+    metaSortKey: -4000000000000
+    parentId: wrk_livros_api
+
+  - _id: req_fluxo_01_criar
+    _type: request
+    name: "1. Criar Livro de Teste"
+    description: Passo 1 - Criar um livro para testar o fluxo completo
+    url: "{{ _.base_url }}/livros"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "titulo": "O Senhor dos Anéis",
+          "autor": "J.R.R. Tolkien",
+          "ano": 1954,
+          "categoria": "Fantasia"
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: "{{ _.content_type }}"
+    authentication: {}
+    metaSortKey: -4000000000000
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_fluxo_completo
+
+  - _id: req_fluxo_02_listar
+    _type: request
+    name: "2. Listar Livros"
+    description: Passo 2 - Verificar se o livro foi criado
+    url: "{{ _.base_url }}/livros"
+    method: GET
+    body: {}
+    parameters: []
+    headers: []
+    authentication: {}
+    metaSortKey: -3999999999999
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_fluxo_completo
+
+  - _id: req_fluxo_03_deletar
+    _type: request
+    name: "3. Deletar Livro"
+    description: "Passo 3 - Deletar o livro criado. Use o ID obtido no passo 1"
+    url: "{{ _.base_url }}/livros/{INSIRA_O_ID_AQUI}"
+    method: DELETE
+    body: {}
+    parameters: []
+    headers: []
+    authentication: {}
+    metaSortKey: -3999999999998
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_fluxo_completo
+
+  - _id: req_fluxo_04_verificar
+    _type: request
+    name: "4. Verificar Exclusão"
+    description: Passo 4 - Confirmar que o livro foi excluído
+    url: "{{ _.base_url }}/livros"
+    method: GET
+    body: {}
+    parameters: []
+    headers: []
+    authentication: {}
+    metaSortKey: -3999999999997
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_fluxo_completo
+
+  # ============================================
+  # PASTA: Testes de Massa de Dados
+  # ============================================
+  - _id: fld_massa_dados
+    _type: request_group
+    name: Massa de Dados - População
+    description: Requisições para popular o banco com dados de teste
+    environment: {}
+    environmentPropertyOrder: null
+    metaSortKey: -5000000000000
+    parentId: wrk_livros_api
+
+  - _id: req_massa_livro_1
+    _type: request
+    name: "Criar: 1984"
+    url: "{{ _.base_url }}/livros"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "titulo": "1984",
+          "autor": "George Orwell",
+          "ano": 1949,
+          "categoria": "Distopia"
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: "{{ _.content_type }}"
+    authentication: {}
+    metaSortKey: -5000000000000
+    isPrivate: false
+    parentId: fld_massa_dados
+
+  - _id: req_massa_livro_2
+    _type: request
+    name: "Criar: Harry Potter"
+    url: "{{ _.base_url }}/livros"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "titulo": "Harry Potter e a Pedra Filosofal",
+          "autor": "J.K. Rowling",
+          "ano": 1997,
+          "categoria": "Fantasia"
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: "{{ _.content_type }}"
+    authentication: {}
+    metaSortKey: -4999999999999
+    isPrivate: false
+    parentId: fld_massa_dados
+
+  - _id: req_massa_livro_3
+    _type: request
+    name: "Criar: Memórias Póstumas"
+    url: "{{ _.base_url }}/livros"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "titulo": "Memórias Póstumas de Brás Cubas",
+          "autor": "Machado de Assis",
+          "ano": 1881,
+          "categoria": "Romance"
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: "{{ _.content_type }}"
+    authentication: {}
+    metaSortKey: -4999999999998
+    isPrivate: false
+    parentId: fld_massa_dados
+
+  - _id: req_massa_livro_4
+    _type: request
+    name: "Criar: O Cortiço"
+    url: "{{ _.base_url }}/livros"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "titulo": "O Cortiço",
+          "autor": "Aluísio Azevedo",
+          "ano": 1890,
+          "categoria": "Naturalismo"
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: "{{ _.content_type }}"
+    authentication: {}
+    metaSortKey: -4999999999997
+    isPrivate: false
+    parentId: fld_massa_dados
+
+  - _id: req_massa_livro_5
+    _type: request
+    name: "Criar: Grande Sertão"
+    url: "{{ _.base_url }}/livros"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "titulo": "Grande Sertão: Veredas",
+          "autor": "João Guimarães Rosa",
+          "ano": 1956,
+          "categoria": "Romance"
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: "{{ _.content_type }}"
+    authentication: {}
+    metaSortKey: -4999999999996
+    isPrivate: false
+    parentId: fld_massa_dados

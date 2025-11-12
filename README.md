@@ -58,6 +58,18 @@ npm run dev
 ```
 O servidor backend estará rodando em http://localhost:3001.
 
+- Inclua o .env no root de backend dir:
+
+```text
+
+# test | prod
+NODE_ENV=prod
+MONGO_URL=mongodb://localhost:27017
+DB_NAME=oraculo
+PORT=3000
+
+```
+
 
 ### 3. Configurar e Rodar o Frontend
 O frontend é a interface visual feita em React. (Abra um novo terminal para este passo).

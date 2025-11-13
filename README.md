@@ -62,7 +62,7 @@ O servidor backend estará rodando em http://localhost:3001.
 
 ```text
 
-# test | prod
+# dev | prod
 NODE_ENV=prod
 MONGO_URL=mongodb://localhost:27017
 DB_NAME=oraculo

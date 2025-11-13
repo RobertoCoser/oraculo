@@ -112,8 +112,8 @@ export function createApp() {
     return app;
 }
 
-// === Iniciar o Servidor (apenas se não estiver em modo de teste) ===
-if (process.env.NODE_ENV !== 'test') {
+// === Iniciar o Servidor (apenas se não estiver em modo dev) ===
+if (process.env.NODE_ENV !== 'dev') {
     const PORT = process.env.PORT || ALT_PORT;
     
     connectToMongo().then(() => {

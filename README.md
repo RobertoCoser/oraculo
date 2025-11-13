@@ -98,28 +98,43 @@ VITE_NODE_ENV=prod
 
 A aplicação estará disponível em http://localhost:5173 (ou outra porta indicada pelo Vite).
 
-
 ### 4. Testes
 
-O projeto possui três níveis de testes:
+O projeto possui uma cobertura completa de testes automatizados e manuais para backend e frontend.
 
-### Testes Automatizados
+#### Testes do Backend
 
-#### Testes Unitários
+##### 1. Testes Unitários
 Testam funções e operações isoladas do MongoDB:
+
 ```bash
 cd backend
 npm run test:unit
 ```
 
-#### Testes E2E (End-to-End)
+**O que é testado:**
+- Inserção de livros no banco de dados
+- Busca de livros (por autor, categoria, etc.)
+- Exclusão de livros
+- Validações de dados
+
+##### 2. Testes E2E (End-to-End)
 Testam a API completa com requisições HTTP reais:
+
 ```bash
 cd backend
 npm run test:e2e
 ```
 
-#### Todos os Testes + Cobertura
+**O que é testado:**
+- Endpoints POST /livros (criar livro)
+- Endpoints GET /livros (listar livros)
+- Endpoints DELETE /livros/:id (excluir livro)
+- Validações de entrada (400, 404, 500)
+- Fluxo completo de CRUD
+
+##### 3. Todos os Testes + Cobertura
+
 ```bash
 cd backend
 
@@ -135,15 +150,90 @@ npm run test:coverage
 
 **Cobertura esperada**: > 80% em todas as categorias
 
-### Testes manuais de integração (API)
+##### 4. Estrutura de Testes do Backend
+
+```
+backend/tests/
+├── unit/                    # Testes unitários
+│   └── livros.test.js      # Testa operações no MongoDB
+├── e2e/                     # Testes end-to-end
+│   └── api.test.js         # Testa endpoints da API
+└── manual/                  # Testes manuais
+    └── insomnia-collection.yaml  # Coleção para Insomnia/Postman
+```
+
+#### Testes do Frontend
+
+##### 1. Testes de Componentes
+Testam componentes React de forma isolada:
+
+```bash
+cd frontend
+npm test
+```
+
+**O que é testado:**
+- Renderização de componentes
+- Interações do usuário (cliques, inputs)
+- Chamadas à API (mock)
+- Validações de formulário
+- Estados e props
+
+##### 2. Executar com Interface Gráfica
+
+```bash
+cd frontend
+npm run test:ui
+```
+
+Abre uma interface web interativa para visualizar e executar testes.
+
+##### 3. Executar uma vez (CI/CD)
+
+```bash
+cd frontend
+npm run test:run
+```
+
+Executa todos os testes uma única vez (útil para pipelines).
+
+##### 4. Cobertura de Código
+
+```bash
+cd frontend
+npm run test:coverage
+```
+
+Gera relatório HTML de cobertura em `frontend/coverage/index.html`.
+
+##### 5. Estrutura de Testes do Frontend
+
+```
+frontend/src/test/
+├── setup.js                 # Configuração global dos testes
+├── components/              # Testes de componentes
+│   ├── ListaLivro.test.jsx # Testa lista e exclusão de livros
+│   └── FormularioLivro.test.jsx # Testa cadastro de livros
+└── integration/             # Testes de integração
+    └── environment.test.js  # Testa configuração de ambiente
+```
+
+**Componentes testados:**
+- ✅ `ListaLivro`: Renderização, exclusão, confirmação, erros
+- ✅ `FormularioLivro`: Validação, envio, limpeza de campos
+- ✅ Configurações de ambiente
+
+#### Testes Manuais (API)
 
 Para testes exploratórios e validação manual da API:
 
-#### Usando Insomnia
+##### Usando Insomnia
+
 1. Importe a coleção de testes:
-   ```bash
+   ```
    Arquivo: backend/tests/manual/insomnia-collection.yaml
    ```
+
 2. No Insomnia:
    - `Ctrl+O` (ou `Application` → `Import Data`)
    - Selecione o arquivo YAML
@@ -156,29 +246,47 @@ Para testes exploratórios e validação manual da API:
    - ✅ Fluxo CRUD completo
    - ✅ Massa de dados para popular o banco
 
-#### Usando Postman
+##### Usando Postman
+
 Você também pode usar o arquivo YAML no Postman:
 - `Import` → Selecione `insomnia-collection.yaml`
-- Configure a variável `base_url` para `http://localhost:3001`
+- Configure a variável `base_url` para `http://localhost:3000`
 
-### Estrutura de Testes
+#### Tabela Comparativa de Testes
 
+| Tipo | Ferramenta | Localização | Descrição | Quando Usar |
+|------|-----------|-------------|-----------|-------------|
+| **Unitário Backend** | Jest | `backend/tests/unit/` | Testa operações no MongoDB | Durante desenvolvimento do backend |
+| **E2E Backend** | Jest + Supertest | `backend/tests/e2e/` | Testa API completa | Antes de commits no backend |
+| **Unitário Frontend** | Vitest + Testing Library | `frontend/src/test/components/` | Testa componentes React | Durante desenvolvimento do frontend |
+| **Integração Frontend** | Vitest | `frontend/src/test/integration/` | Testa configurações e integrações | Ao configurar ambiente |
+| **Manual/API** | Insomnia/Postman | `backend/tests/manual/` | Testa endpoints manualmente | Validação exploratória e debug |
+
+#### Comandos Rápidos
+
+**Backend:**
+```bash
+cd backend
+npm test              # Todos os testes
+npm run test:unit     # Apenas unitários
+npm run test:e2e      # Apenas E2E
+npm run test:coverage # Com cobertura
 ```
-backend/tests/
-├── unit/                    # Testes unitários
-│   └── livros.test.js      # Testa operações no MongoDB
-├── e2e/                     # Testes end-to-end
-│   └── api.test.js         # Testa endpoints da API
-└── manual/                  # Testes manuais
-    └── insomnia-collection.yaml  # Coleção para Insomnia/Postman
+
+**Frontend:**
+```bash
+cd frontend
+npm test              # Watch mode
+npm run test:run      # Uma vez
+npm run test:ui       # Interface gráfica
+npm run test:coverage # Com cobertura
 ```
 
-### Tipos de Teste
+#### Critérios de Qualidade
 
-| Tipo | Ferramenta | Descrição | Quando Usar |
-|------|-----------|-----------|-------------|
-| **Unitário** | Jest | Testa funções isoladas | Durante desenvolvimento |
-| **E2E** | Jest + Supertest | Testa fluxos completos | Antes de commits |
-| **Manual/API** | Insomnia/Postman | Testa endpoints manualmente | Validação exploratória |
+- **Backend**: Cobertura de código > 80%
+- **Frontend**: Cobertura de código > 80%
+- **E2E**: Todos os fluxos de User Stories testados
+- **Manual**: Coleção completa de testes de API disponível
 
 ---

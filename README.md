@@ -86,6 +86,16 @@ npm install
 npm run dev
 
 ```
+
+Setar variáveis de ambiente no root do frontend:
+
+```text
+VITE_API_URL=http://localhost:3000
+# dev | prod
+VITE_NODE_ENV=prod
+```
+
+
 A aplicação estará disponível em http://localhost:5173 (ou outra porta indicada pelo Vite).
 
 

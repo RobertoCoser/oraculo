@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Button, Container, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
+import { apiURL } from '../config/environment';
 
 function FormularioLivro({ onLivroCadastrado }) {
     const [titulo, setTitulo] = useState('');
@@ -19,7 +20,7 @@ function FormularioLivro({ onLivroCadastrado }) {
         };
 
         try {
-            await axios.post('http://localhost:3001/livros', novoLivro);
+            await axios.post(`${apiURL}/livros`, novoLivro);
             alert('Livro cadastrado com sucesso!');
 
             setTitulo('');

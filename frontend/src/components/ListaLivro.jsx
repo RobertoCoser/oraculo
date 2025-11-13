@@ -1,13 +1,14 @@
 import React from 'react';
 import { Table, Container, Button } from 'react-bootstrap';
 import axios from 'axios';
+import { apiURL } from '../config/environment';
 
 function ListaLivro({ livros, fetchLivro }) {
 
     const handleDelete = async (id) => {
         try {
             if (window.confirm('Tem certeza que deseja excluir este livro?')) {
-                await axios.delete(`http://localhost:3001/livros/${id}`);
+                await axios.delete(`${apiURL}/livros/${id}`);
                 alert('Livro excluído com sucesso!');
 
                 fetchLivro();
@@ -41,6 +42,7 @@ function ListaLivro({ livros, fetchLivro }) {
                             <td>
                                 <Button
                                     variant="danger"
+                                    data-testid="button-delete-livro"
                                     size="sm"
                                     onClick={() => handleDelete(livro._id)}
                                 >

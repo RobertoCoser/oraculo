@@ -35,7 +35,7 @@ app.use(express.json());
 app.post('/livros', async (req, res) => {
     try {
         const dadosDoLivro = req.body;
-
+        dadosDoLivro.disponivel = true;
         const collection = db.collection('livros');
         const result = await collection.insertOne(dadosDoLivro);
 
@@ -87,6 +87,98 @@ app.delete('/livros/:id', async (req, res) => {
     } catch (error) {
         console.error('Erro ao excluir livro:', error);
         res.status(500).json({ message: 'Erro interno ao excluir livro' });
+    }
+});
+
+// Rota para US06: Registrar Empréstimo
+app.post('/emprestimos', async (req, res) => {
+    try {
+        const { idLivro, idLeitor } = req.body;
+
+        const livrosCollection = db.collection('livros');
+        const leitoresCollection = db.collection('leitores');
+        const emprestimosCollection = db.collection('emprestimos');
+
+        // 1. Verifica se o livro existe e está disponível
+        const livro = await livrosCollection.findOne({ _id: new ObjectId(idLivro) });
+        if (!livro) return res.status(404).json({ message: 'Livro não encontrado' });
+        if (livro.disponivel === false) return res.status(400).json({ message: 'Livro já está emprestado!' });
+
+        // 2. Verifica se o leitor existe
+        const leitor = await leitoresCollection.findOne({ _id: new ObjectId(idLeitor) });
+        if (!leitor) return res.status(404).json({ message: 'Leitor não encontrado' });
+
+        // 3. Cria o objeto de empréstimo
+        const novoEmprestimo = {
+            idLivro: new ObjectId(idLivro),
+            idLeitor: new ObjectId(idLeitor),
+            nomeLivro: livro.titulo,
+            nomeLeitor: leitor.nome,
+            dataEmprestimo: new Date(),
+            status: 'ativo' // Para saber que ainda não foi devolvido
+        };
+
+        // 4. Salva o empréstimo
+        await emprestimosCollection.insertOne(novoEmprestimo);
+
+        // 5. ATUALIZA O LIVRO: Define disponivel = false
+        await livrosCollection.updateOne(
+            { _id: new ObjectId(idLivro) },
+            { $set: { disponivel: false } }
+        );
+
+        res.status(201).json({ message: 'Empréstimo registrado com sucesso!' });
+
+    } catch (error) {
+        console.error('Erro ao registrar empréstimo:', error);
+        res.status(500).json({ message: 'Erro interno ao registrar empréstimo' });
+    }
+});
+
+// Rota para listar empréstimos (para conferência)
+app.get('/emprestimos', async (req, res) => {
+    try {
+        const collection = db.collection('emprestimos');
+        // Traz apenas os ativos, se quiser todos, remova o filtro do find
+        const emprestimos = await collection.find({ status: 'ativo' }).toArray();
+        res.status(200).json(emprestimos);
+    } catch (error) {
+        console.error('Erro ao buscar empréstimos:', error);
+        res.status(500).json({ message: 'Erro interno' });
+    }
+});
+
+// Rota para US07: Registrar Devolução
+app.put('/emprestimos/:id', async (req, res) => {
+    try {
+        const { id } = req.params; // ID do Empréstimo
+        const emprestimosCollection = db.collection('emprestimos');
+        const livrosCollection = db.collection('livros');
+
+        // 1. Busca o empréstimo para saber qual livro liberar
+        const emprestimo = await emprestimosCollection.findOne({ _id: new ObjectId(id) });
+
+        if (!emprestimo) {
+            return res.status(404).json({ message: 'Empréstimo não encontrado' });
+        }
+
+        // 2. Atualiza o status do empréstimo para 'finalizado' e adiciona data de devolução
+        await emprestimosCollection.updateOne(
+            { _id: new ObjectId(id) },
+            { $set: { status: 'finalizado', dataDevolucao: new Date() } }
+        );
+
+        // 3. ATUALIZA O LIVRO: Define disponivel = true (Libera o livro)
+        await livrosCollection.updateOne(
+            { _id: new ObjectId(emprestimo.idLivro) },
+            { $set: { disponivel: true } }
+        );
+
+        res.status(200).json({ message: 'Devolução registrada com sucesso!' });
+
+    } catch (error) {
+        console.error('Erro ao devolver:', error);
+        res.status(500).json({ message: 'Erro interno na devolução' });
     }
 });
 

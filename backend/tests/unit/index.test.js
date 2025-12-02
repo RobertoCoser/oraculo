@@ -1,15 +1,13 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { MongoClient, ObjectId } from 'mongodb';
-import { connectToMongo, closeConnection } from '../../index.js';
-import { getDb } from '../../index.js';
+import { ObjectId } from 'mongodb';
+import { connectToMongo, closeConnection, getDb } from '../../index.js';
 
 describe('Testes Unitários - Operações no MongoDB', () => {
     let mongoServer;
     let db;
 
     beforeAll(async () => {
-        // Inicia um servidor MongoDB em memória
         mongoServer = await MongoMemoryServer.create();
         const uri = mongoServer.getUri();
         await connectToMongo(uri, 'test-oraculo');
@@ -22,11 +20,15 @@ describe('Testes Unitários - Operações no MongoDB', () => {
     });
 
     beforeEach(async () => {
-        // Limpa a coleção antes de cada teste
         await db.collection('livros').deleteMany({});
+        await db.collection('emprestimos').deleteMany({});
+        await db.collection('leitores').deleteMany({});
     });
 
-    describe('Inserção de livros', () => {
+    // ============================================
+    // TESTES DE LIVROS
+    // ============================================
+    describe('Livros - Inserção', () => {
         it('deve inserir um livro com sucesso', async () => {
             const livro = {
                 titulo: 'Dom Casmurro',
@@ -58,7 +60,7 @@ describe('Testes Unitários - Operações no MongoDB', () => {
         });
     });
 
-    describe('Busca de livros', () => {
+    describe('Livros - Busca', () => {
         beforeEach(async () => {
             await db.collection('livros').insertMany([
                 { titulo: 'Livro A', autor: 'Autor 1', ano: 2020, categoria: 'Ficção' },
@@ -83,7 +85,7 @@ describe('Testes Unitários - Operações no MongoDB', () => {
         });
     });
 
-    describe('Exclusão de livros', () => {
+    describe('Livros - Exclusão', () => {
         it('deve excluir um livro por ID', async () => {
             const result = await db.collection('livros').insertOne({
                 titulo: 'Livro para deletar',
@@ -103,6 +105,146 @@ describe('Testes Unitários - Operações no MongoDB', () => {
             const fakeId = new ObjectId();
             const result = await db.collection('livros').deleteOne({ _id: fakeId });
             expect(result.deletedCount).toBe(0);
+        });
+    });
+
+    // ============================================
+    // TESTES DE EMPRÉSTIMOS (US06 e US07)
+    // ============================================
+    describe('Empréstimos - Registro (US06)', () => {
+        let livroId;
+        let leitorId;
+
+        beforeEach(async () => {
+            // Criar livro de teste
+            const livroResult = await db.collection('livros').insertOne({
+                titulo: 'Livro Teste',
+                autor: 'Autor Teste',
+                ano: 2020,
+                categoria: 'Teste'
+            });
+            livroId = livroResult.insertedId;
+
+            // Criar leitor de teste
+            const leitorResult = await db.collection('leitores').insertOne({
+                nome: 'João Silva',
+                email: 'joao@email.com'
+            });
+            leitorId = leitorResult.insertedId;
+        });
+
+        it('deve registrar um empréstimo com sucesso', async () => {
+            const emprestimo = {
+                idLivro: livroId,
+                idLeitor: leitorId,
+                dataEmprestimo: new Date(),
+                dataDevolucaoPrevista: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+                status: 'ativo'
+            };
+
+            const result = await db.collection('emprestimos').insertOne(emprestimo);
+            
+            expect(result.insertedId).toBeDefined();
+            expect(result.acknowledged).toBe(true);
+
+            const emprestimoInserido = await db.collection('emprestimos').findOne({ _id: result.insertedId });
+            expect(emprestimoInserido.status).toBe('ativo');
+            expect(emprestimoInserido.idLivro).toEqual(livroId);
+        });
+
+        it('deve listar todos os empréstimos', async () => {
+            await db.collection('emprestimos').insertMany([
+                {
+                    idLivro: livroId,
+                    idLeitor: leitorId,
+                    dataEmprestimo: new Date(),
+                    status: 'ativo'
+                },
+                {
+                    idLivro: livroId,
+                    idLeitor: leitorId,
+                    dataEmprestimo: new Date(),
+                    status: 'devolvido'
+                }
+            ]);
+
+            const emprestimos = await db.collection('emprestimos').find({}).toArray();
+            expect(emprestimos).toHaveLength(2);
+        });
+
+        it('deve buscar empréstimos por status', async () => {
+            await db.collection('emprestimos').insertMany([
+                { idLivro: livroId, idLeitor: leitorId, status: 'ativo' },
+                { idLivro: livroId, idLeitor: leitorId, status: 'ativo' },
+                { idLivro: livroId, idLeitor: leitorId, status: 'devolvido' }
+            ]);
+
+            const ativos = await db.collection('emprestimos').find({ status: 'ativo' }).toArray();
+            expect(ativos).toHaveLength(2);
+        });
+    });
+
+    describe('Empréstimos - Devolução (US07)', () => {
+        let emprestimoId;
+
+        beforeEach(async () => {
+            const livroResult = await db.collection('livros').insertOne({
+                titulo: 'Livro Teste',
+                autor: 'Autor Teste',
+                ano: 2020,
+                categoria: 'Teste'
+            });
+
+            const leitorResult = await db.collection('leitores').insertOne({
+                nome: 'Maria Santos',
+                email: 'maria@email.com'
+            });
+
+            const emprestimoResult = await db.collection('emprestimos').insertOne({
+                idLivro: livroResult.insertedId,
+                idLeitor: leitorResult.insertedId,
+                dataEmprestimo: new Date(),
+                status: 'ativo'
+            });
+            emprestimoId = emprestimoResult.insertedId;
+        });
+
+        it('deve registrar devolução com sucesso', async () => {
+            const dataDevolucao = new Date();
+            
+            const result = await db.collection('emprestimos').updateOne(
+                { _id: emprestimoId },
+                { 
+                    $set: { 
+                        status: 'devolvido',
+                        dataDevolucao: dataDevolucao
+                    }
+                }
+            );
+
+            expect(result.modifiedCount).toBe(1);
+
+            const emprestimoAtualizado = await db.collection('emprestimos').findOne({ _id: emprestimoId });
+            expect(emprestimoAtualizado.status).toBe('devolvido');
+            expect(emprestimoAtualizado.dataDevolucao).toEqual(dataDevolucao);
+        });
+
+        it('não deve atualizar empréstimo inexistente', async () => {
+            const fakeId = new ObjectId();
+            
+            const result = await db.collection('emprestimos').updateOne(
+                { _id: fakeId },
+                { $set: { status: 'devolvido' } }
+            );
+
+            expect(result.modifiedCount).toBe(0);
+        });
+
+        it('deve buscar empréstimo por ID', async () => {
+            const emprestimo = await db.collection('emprestimos').findOne({ _id: emprestimoId });
+            
+            expect(emprestimo).not.toBeNull();
+            expect(emprestimo._id).toEqual(emprestimoId);
         });
     });
 });

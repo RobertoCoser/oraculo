@@ -1,12 +1,12 @@
 _type: export
 __export_format: 4
-__export_date: 2025-11-12T00:00:00.000Z
+__export_date: 2025-12-01T00:00:00.000Z
 __export_source: insomnia.desktop.app:v2023.5.8
 resources:
   - _id: wrk_livros_api
     _type: workspace
-    name: API Gerenciamento de Livros
-    description: Coleção de testes para a API de gerenciamento de livros
+    name: API Oráculo - Gestão de Biblioteca
+    description: Coleção completa de testes para a API de gerenciamento de livros e empréstimos
     scope: collection
     parentId: null
 
@@ -256,7 +256,7 @@ resources:
   - _id: req_excluir_livro_valido
     _type: request
     name: Excluir Livro - ID Válido
-    description: "Exclui um livro existente. IMPORTANTE: Substitua {id} por um ID válido obtido da listagem"
+    description: "Exclui um livro existente. IMPORTANTE: Substitua o ID por um válido obtido da listagem"
     url: "{{ _.base_url }}/livros/673363d5e0c123456789abcd"
     method: DELETE
     body: {}
@@ -314,12 +314,226 @@ resources:
     parentId: fld_excluir_livros
 
   # ============================================
-  # PASTA: Testes de Fluxo Completo
+  # PASTA: US06 - Registrar Empréstimos
+  # ============================================
+  - _id: fld_emprestimos
+    _type: request_group
+    name: US06 - Registrar Empréstimos
+    description: Endpoints para registrar empréstimos de livros
+    environment: {}
+    environmentPropertyOrder: null
+    metaSortKey: -6000000000000
+    parentId: wrk_livros_api
+
+  - _id: req_registrar_emprestimo_sucesso
+    _type: request
+    name: Registrar Empréstimo - Sucesso
+    description: "Registra um novo empréstimo. IMPORTANTE: Substitua idLivro e idLeitor por IDs válidos"
+    url: "{{ _.base_url }}/emprestimos"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "idLivro": "INSIRA_ID_LIVRO_AQUI",
+          "idLeitor": "INSIRA_ID_LEITOR_AQUI"
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: "{{ _.content_type }}"
+    authentication: {}
+    metaSortKey: -6000000000000
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_emprestimos
+
+  - _id: req_registrar_emprestimo_sem_livro
+    _type: request
+    name: Registrar Empréstimo - Sem idLivro (400)
+    description: Tenta registrar empréstimo sem idLivro - deve retornar erro 400
+    url: "{{ _.base_url }}/emprestimos"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "idLeitor": "507f1f77bcf86cd799439011"
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: "{{ _.content_type }}"
+    authentication: {}
+    metaSortKey: -5999999999999
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_emprestimos
+
+  - _id: req_registrar_emprestimo_sem_leitor
+    _type: request
+    name: Registrar Empréstimo - Sem idLeitor (400)
+    description: Tenta registrar empréstimo sem idLeitor - deve retornar erro 400
+    url: "{{ _.base_url }}/emprestimos"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "idLivro": "507f1f77bcf86cd799439011"
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: "{{ _.content_type }}"
+    authentication: {}
+    metaSortKey: -5999999999998
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_emprestimos
+
+  - _id: req_registrar_emprestimo_livro_inexistente
+    _type: request
+    name: Registrar Empréstimo - Livro Inexistente (404)
+    description: Tenta registrar empréstimo para livro inexistente - deve retornar 404
+    url: "{{ _.base_url }}/emprestimos"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "idLivro": "507f1f77bcf86cd799439011",
+          "idLeitor": "507f1f77bcf86cd799439022"
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: "{{ _.content_type }}"
+    authentication: {}
+    metaSortKey: -5999999999997
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_emprestimos
+
+  - _id: req_listar_emprestimos
+    _type: request
+    name: Listar Todos os Empréstimos
+    description: Retorna todos os empréstimos registrados no sistema
+    url: "{{ _.base_url }}/emprestimos"
+    method: GET
+    body: {}
+    parameters: []
+    headers: []
+    authentication: {}
+    metaSortKey: -5999999999996
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_emprestimos
+
+  # ============================================
+  # PASTA: US07 - Registrar Devoluções
+  # ============================================
+  - _id: fld_devolucoes
+    _type: request_group
+    name: US07 - Registrar Devoluções
+    description: Endpoints para registrar devoluções de livros
+    environment: {}
+    environmentPropertyOrder: null
+    metaSortKey: -7000000000000
+    parentId: wrk_livros_api
+
+  - _id: req_registrar_devolucao_sucesso
+    _type: request
+    name: Registrar Devolução - Sucesso
+    description: "Registra a devolução de um livro. IMPORTANTE: Substitua o ID pelo ID do empréstimo"
+    url: "{{ _.base_url }}/emprestimos/INSIRA_ID_EMPRESTIMO_AQUI"
+    method: PUT
+    body: {}
+    parameters: []
+    headers: []
+    authentication: {}
+    metaSortKey: -7000000000000
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_devolucoes
+
+  - _id: req_registrar_devolucao_inexistente
+    _type: request
+    name: Registrar Devolução - Empréstimo Inexistente (404)
+    description: Tenta registrar devolução de empréstimo inexistente - deve retornar 404
+    url: "{{ _.base_url }}/emprestimos/507f1f77bcf86cd799439011"
+    method: PUT
+    body: {}
+    parameters: []
+    headers: []
+    authentication: {}
+    metaSortKey: -6999999999999
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_devolucoes
+
+  - _id: req_registrar_devolucao_id_invalido
+    _type: request
+    name: Registrar Devolução - ID Inválido (400)
+    description: Tenta registrar devolução com ID inválido - deve retornar 400
+    url: "{{ _.base_url }}/emprestimos/id-invalido-123"
+    method: PUT
+    body: {}
+    parameters: []
+    headers: []
+    authentication: {}
+    metaSortKey: -6999999999998
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_devolucoes
+
+  # ============================================
+  # PASTA: Fluxo Completo - CRUD Livros
   # ============================================
   - _id: fld_fluxo_completo
     _type: request_group
-    name: Fluxo Completo - CRUD
-    description: Sequência de requisições para testar o fluxo completo
+    name: Fluxo Completo - CRUD Livros
+    description: Sequência de requisições para testar o fluxo completo de livros
     environment: {}
     environmentPropertyOrder: null
     metaSortKey: -4000000000000
@@ -416,11 +630,141 @@ resources:
     parentId: fld_fluxo_completo
 
   # ============================================
-  # PASTA: Testes de Massa de Dados
+  # PASTA: Fluxo Completo - Empréstimo e Devolução
+  # ============================================
+  - _id: fld_fluxo_emprestimo
+    _type: request_group
+    name: Fluxo Completo - Empréstimo e Devolução
+    description: Sequência de requisições para testar o fluxo completo de empréstimo
+    environment: {}
+    environmentPropertyOrder: null
+    metaSortKey: -8000000000000
+    parentId: wrk_livros_api
+
+  - _id: req_fluxo_emp_01_criar_livro
+    _type: request
+    name: "1. Criar Livro para Empréstimo"
+    description: Passo 1 - Criar um livro para emprestar
+    url: "{{ _.base_url }}/livros"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "titulo": "Clean Code",
+          "autor": "Robert C. Martin",
+          "ano": 2008,
+          "categoria": "Programação"
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: "{{ _.content_type }}"
+    authentication: {}
+    metaSortKey: -8000000000000
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_fluxo_emprestimo
+
+  - _id: req_fluxo_emp_02_registrar
+    _type: request
+    name: "2. Registrar Empréstimo"
+    description: "Passo 2 - Registrar o empréstimo. Substitua os IDs pelos valores obtidos"
+    url: "{{ _.base_url }}/emprestimos"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "idLivro": "INSIRA_ID_LIVRO_DO_PASSO_1",
+          "idLeitor": "INSIRA_ID_LEITOR_VALIDO"
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: "{{ _.content_type }}"
+    authentication: {}
+    metaSortKey: -7999999999999
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_fluxo_emprestimo
+
+  - _id: req_fluxo_emp_03_listar
+    _type: request
+    name: "3. Verificar Empréstimo Ativo"
+    description: Passo 3 - Verificar se o empréstimo está ativo
+    url: "{{ _.base_url }}/emprestimos"
+    method: GET
+    body: {}
+    parameters: []
+    headers: []
+    authentication: {}
+    metaSortKey: -7999999999998
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_fluxo_emprestimo
+
+  - _id: req_fluxo_emp_04_devolver
+    _type: request
+    name: "4. Registrar Devolução"
+    description: "Passo 4 - Registrar a devolução do livro. Use o ID do empréstimo do passo 2"
+    url: "{{ _.base_url }}/emprestimos/{INSIRA_ID_EMPRESTIMO}"
+    method: PUT
+    body: {}
+    parameters: []
+    headers: []
+    authentication: {}
+    metaSortKey: -7999999999997
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_fluxo_emprestimo
+
+  - _id: req_fluxo_emp_05_verificar
+    _type: request
+    name: "5. Verificar Devolução"
+    description: Passo 5 - Confirmar que o empréstimo foi devolvido
+    url: "{{ _.base_url }}/emprestimos"
+    method: GET
+    body: {}
+    parameters: []
+    headers: []
+    authentication: {}
+    metaSortKey: -7999999999996
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    parentId: fld_fluxo_emprestimo
+
+  # ============================================
+  # PASTA: Massa de Dados - Livros
   # ============================================
   - _id: fld_massa_dados
     _type: request_group
-    name: Massa de Dados - População
+    name: Massa de Dados - Livros
     description: Requisições para popular o banco com dados de teste
     environment: {}
     environmentPropertyOrder: null
@@ -539,5 +883,28 @@ resources:
         value: "{{ _.content_type }}"
     authentication: {}
     metaSortKey: -4999999999996
+    isPrivate: false
+    parentId: fld_massa_dados
+
+  - _id: req_massa_livro_6
+    _type: request
+    name: "Criar: The Pragmatic Programmer"
+    url: "{{ _.base_url }}/livros"
+    method: POST
+    body:
+      mimeType: application/json
+      text: |
+        {
+          "titulo": "The Pragmatic Programmer",
+          "autor": "David Thomas e Andrew Hunt",
+          "ano": 1999,
+          "categoria": "Programação"
+        }
+    parameters: []
+    headers:
+      - name: Content-Type
+        value: "{{ _.content_type }}"
+    authentication: {}
+    metaSortKey: -4999999999995
     isPrivate: false
     parentId: fld_massa_dados

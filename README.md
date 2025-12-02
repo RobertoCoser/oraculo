@@ -1,6 +1,6 @@
 # 📚 Oráculo - Sistema de Gestão de Biblioteca
 
-Este projeto é um sistema de gerenciamento de biblioteca (CRUD de livros) desenvolvido para a atividade "Scrum na prática".
+Este projeto é um sistema de gerenciamento de biblioteca (CRUD de livros, leitores e empréstimos) desenvolvido para a atividade "Scrum na prática".
 
 ## 🚀 Tecnologias Utilizadas
 
@@ -13,6 +13,11 @@ Este projeto é um sistema de gerenciamento de biblioteca (CRUD de livros) desen
     * Express
     * MongoDB (com driver `mongodb`)
     * Nodemon
+* **Testes:**
+    * Jest (Backend)
+    * Vitest + Testing Library (Frontend)
+    * Supertest (E2E)
+    * MongoDB Memory Server (Banco em memória)
 * **Versionamento:**
     * Git & GitHub
 
@@ -34,17 +39,15 @@ Siga estes passos para configurar e rodar o projeto localmente:
 ### 1. Clonar o Repositório
 
 ```bash
-
-git clone [https://github.com/RobertoCoser/oraculo.git](https://github.com/RobertoCoser/oraculo.git)
+git clone https://github.com/RobertoCoser/oraculo.git
 cd oraculo
-
 ```
 
 ### 2. Configurar e Rodar o Backend
+
 O backend é responsável pela API e conexão com o banco de dados.
 
 ```bash
-
 # 1. Navegue até a pasta do backend
 cd backend
 
@@ -54,28 +57,25 @@ npm install
 # 3. Inicie o servidor
 # (Certifique-se que o seu MongoDB Server está rodando localmente)
 npm run dev
-
 ```
+
 O servidor backend estará rodando em http://localhost:3001.
 
-- Inclua o .env no root de backend dir:
+Inclua o `.env` no root de backend dir:
 
 ```text
-
 # dev | prod
 NODE_ENV=prod
 MONGO_URL=mongodb://localhost:27017
 DB_NAME=oraculo
 PORT=3000
-
 ```
 
-
 ### 3. Configurar e Rodar o Frontend
+
 O frontend é a interface visual feita em React. (Abra um novo terminal para este passo).
 
 ```bash
-
 # 1. Navegue até a pasta do frontend (na raiz do projeto)
 cd frontend
 
@@ -84,7 +84,6 @@ npm install
 
 # 3. Inicie a aplicação
 npm run dev
-
 ```
 
 Setar variáveis de ambiente no root do frontend:
@@ -95,17 +94,30 @@ VITE_API_URL=http://localhost:3000
 VITE_NODE_ENV=prod
 ```
 
-
 A aplicação estará disponível em http://localhost:5173 (ou outra porta indicada pelo Vite).
 
-### 4. Testes
+---
+
+## 🧪 Testes
 
 O projeto possui uma cobertura completa de testes automatizados e manuais para backend e frontend.
 
-#### Testes do Backend
+### 📊 Visão Geral
 
-##### 1. Testes Unitários
-Testam funções e operações isoladas do MongoDB:
+| Camada | Tipo | Ferramenta | User Stories Cobertas |
+|--------|------|------------|----------------------|
+| Backend | Unitário | Jest + MongoDB Memory Server | US01, US03, US04 |
+| Backend | E2E | Jest + Supertest | US01, US03, US04, US06, US07 |
+| Frontend | Componentes | Vitest + Testing Library | US01, US03, US04, US06, US07, US12, US14 |
+| API | Manual | Insomnia/Postman | Todos os endpoints |
+
+---
+
+### 🔧 Testes do Backend
+
+#### 1. Testes Unitários
+
+Testam funções e operações isoladas do MongoDB usando banco em memória:
 
 ```bash
 cd backend
@@ -113,12 +125,14 @@ npm run test:unit
 ```
 
 **O que é testado:**
-- Inserção de livros no banco de dados
-- Busca de livros (por autor, categoria, etc.)
-- Exclusão de livros
-- Validações de dados
+- ✅ Inserção de livros no banco de dados
+- ✅ Busca de livros (por autor, categoria, etc.)
+- ✅ Exclusão de livros
+- ✅ Validações de dados
+- ✅ Operações CRUD completas
 
-##### 2. Testes E2E (End-to-End)
+#### 2. Testes E2E (End-to-End)
+
 Testam a API completa com requisições HTTP reais:
 
 ```bash
@@ -127,13 +141,21 @@ npm run test:e2e
 ```
 
 **O que é testado:**
-- Endpoints POST /livros (criar livro)
-- Endpoints GET /livros (listar livros)
-- Endpoints DELETE /livros/:id (excluir livro)
-- Validações de entrada (400, 404, 500)
-- Fluxo completo de CRUD
 
-##### 3. Todos os Testes + Cobertura
+| Endpoint | Método | User Story | Cenários |
+|----------|--------|------------|----------|
+| `/livros` | POST | US01 | Sucesso, sem título, sem autor, campos opcionais |
+| `/livros` | GET | US04 | Lista vazia, múltiplos livros |
+| `/livros/:id` | DELETE | US03 | Sucesso, ID inválido, ID inexistente |
+| `/emprestimos` | POST | US06 | Sucesso, livro inexistente, leitor inexistente, livro já emprestado |
+| `/emprestimos` | GET | - | Lista ativos, lista vazia |
+| `/emprestimos/:id` | PUT | US07 | Sucesso, ID inválido, empréstimo inexistente |
+
+**Fluxos Completos Testados:**
+- ✅ CRUD de Livros (criar → listar → excluir → verificar)
+- ✅ Empréstimo e Devolução (criar livro → emprestar → verificar → devolver → verificar)
+
+#### 3. Todos os Testes + Cobertura
 
 ```bash
 cd backend
@@ -148,23 +170,24 @@ npm run test:watch
 npm run test:coverage
 ```
 
-**Cobertura esperada**: > 80% em todas as categorias
-
-##### 4. Estrutura de Testes do Backend
+#### 4. Estrutura de Testes do Backend
 
 ```
 backend/tests/
-├── unit/                    # Testes unitários
-│   └── livros.test.js      # Testa operações no MongoDB
-├── e2e/                     # Testes end-to-end
-│   └── api.test.js         # Testa endpoints da API
-└── manual/                  # Testes manuais
-    └── insomnia-collection.yaml  # Coleção para Insomnia/Postman
+├── unit/                         # Testes unitários
+│   └── livros.test.js           # Testa operações no MongoDB
+├── e2e/                          # Testes end-to-end
+│   └── api.test.js              # Testa endpoints da API
+└── manual/                       # Testes manuais
+    └── insomnia-collection.yaml # Coleção para Insomnia/Postman
 ```
 
-#### Testes do Frontend
+---
 
-##### 1. Testes de Componentes
+### ⚛️ Testes do Frontend
+
+#### 1. Testes de Componentes
+
 Testam componentes React de forma isolada:
 
 ```bash
@@ -172,62 +195,58 @@ cd frontend
 npm test
 ```
 
-**O que é testado:**
-- Renderização de componentes
-- Interações do usuário (cliques, inputs)
-- Chamadas à API (mock)
-- Validações de formulário
-- Estados e props
+**Componentes Testados:**
 
-##### 2. Executar com Interface Gráfica
+| Componente | User Story | Cenários Testados |
+|------------|------------|-------------------|
+| `FormularioLivro` | US01 | Renderização, validação, envio, erros, limpeza de campos |
+| `ListaLivro` | US03, US04 | Listagem, exclusão, confirmação, tratamento de erros |
+| `FormularioLeitor` | US12 | Renderização, validação, cadastro com email/telefone |
+| `ListaLeitor` | US14 | Listagem, exclusão, confirmação, tratamento de erros |
+| `FormularioEmprestimo` | US06 | Seleção de livro/leitor, validação, registro de empréstimo |
+| `ListaEmprestimos` | US07 | Listagem, devolução, confirmação, atualização de status |
 
-```bash
-cd frontend
-npm run test:ui
-```
-
-Abre uma interface web interativa para visualizar e executar testes.
-
-##### 3. Executar uma vez (CI/CD)
+#### 2. Comandos de Teste
 
 ```bash
 cd frontend
+
+# Watch mode (re-executa ao salvar)
+npm test
+
+# Executar uma vez (CI/CD)
 npm run test:run
-```
 
-Executa todos os testes uma única vez (útil para pipelines).
+# Interface gráfica interativa
+npm run test:ui
 
-##### 4. Cobertura de Código
-
-```bash
-cd frontend
+# Cobertura de código
 npm run test:coverage
 ```
 
-Gera relatório HTML de cobertura em `frontend/coverage/index.html`.
-
-##### 5. Estrutura de Testes do Frontend
+#### 3. Estrutura de Testes do Frontend
 
 ```
 frontend/src/test/
-├── setup.js                 # Configuração global dos testes
-├── components/              # Testes de componentes
-│   ├── ListaLivro.test.jsx # Testa lista e exclusão de livros
-│   └── FormularioLivro.test.jsx # Testa cadastro de livros
-└── integration/             # Testes de integração
-    └── environment.test.js  # Testa configuração de ambiente
+├── setup.js                          # Configuração global dos testes
+├── components/                       # Testes de componentes
+│   ├── FormularioLivro.test.jsx     # US01: Cadastrar livros
+│   ├── ListaLivro.test.jsx          # US03, US04: Listar e excluir
+│   ├── FormularioLeitor.test.jsx    # US12: Cadastrar leitores
+│   ├── ListaLeitor.test.jsx         # US14: Listar e excluir leitores
+│   ├── FormularioEmprestimo.test.jsx # US06: Registrar empréstimos
+│   └── ListaEmprestimos.test.jsx    # US07: Registrar devoluções
+└── integration/                      # Testes de integração
+    └── environment.test.js          # Configuração de ambiente
 ```
 
-**Componentes testados:**
-- ✅ `ListaLivro`: Renderização, exclusão, confirmação, erros
-- ✅ `FormularioLivro`: Validação, envio, limpeza de campos
-- ✅ Configurações de ambiente
+---
 
-#### Testes Manuais (API)
+### 📬 Testes Manuais (API)
 
 Para testes exploratórios e validação manual da API:
 
-##### Usando Insomnia
+#### Usando Insomnia
 
 1. Importe a coleção de testes:
    ```
@@ -239,54 +258,100 @@ Para testes exploratórios e validação manual da API:
    - Selecione o arquivo YAML
    - Escolha o ambiente "Development"
 
-3. A coleção inclui:
-   - ✅ US01: Cadastrar Livros (casos de sucesso e erro)
-   - ✅ US03: Excluir Livros (com validações)
-   - ✅ US04: Listar Livros
-   - ✅ Fluxo CRUD completo
-   - ✅ Massa de dados para popular o banco
+3. **A coleção inclui:**
 
-##### Usando Postman
+| Pasta | Descrição | Quantidade |
+|-------|-----------|------------|
+| US01 - Cadastrar Livros | Testes de cadastro | 5 requests |
+| US03 - Excluir Livros | Testes de exclusão | 3 requests |
+| US04 - Listar Livros | Testes de listagem | 1 request |
+| US06 - Registrar Empréstimos | Testes de empréstimo | 5 requests |
+| US07 - Registrar Devoluções | Testes de devolução | 3 requests |
+| Fluxo CRUD Livros | Fluxo completo | 4 requests |
+| Fluxo Empréstimo/Devolução | Fluxo completo | 5 requests |
+| Massa de Dados | Popular banco | 6 requests |
+
+**Total: 32 requests organizados em 8 pastas**
+
+#### Usando Postman
 
 Você também pode usar o arquivo YAML no Postman:
 - `Import` → Selecione `insomnia-collection.yaml`
 - Configure a variável `base_url` para `http://localhost:3000`
 
-#### Tabela Comparativa de Testes
+---
+
+### 📋 Tabela Comparativa de Testes
 
 | Tipo | Ferramenta | Localização | Descrição | Quando Usar |
-|------|-----------|-------------|-----------|-------------|
-| **Unitário Backend** | Jest | `backend/tests/unit/` | Testa operações no MongoDB | Durante desenvolvimento do backend |
+|------|------------|-------------|-----------|-------------|
+| **Unitário Backend** | Jest + MongoDB Memory Server | `backend/tests/unit/` | Testa operações no MongoDB | Durante desenvolvimento do backend |
 | **E2E Backend** | Jest + Supertest | `backend/tests/e2e/` | Testa API completa | Antes de commits no backend |
-| **Unitário Frontend** | Vitest + Testing Library | `frontend/src/test/components/` | Testa componentes React | Durante desenvolvimento do frontend |
+| **Componentes Frontend** | Vitest + Testing Library | `frontend/src/test/components/` | Testa componentes React | Durante desenvolvimento do frontend |
 | **Integração Frontend** | Vitest | `frontend/src/test/integration/` | Testa configurações e integrações | Ao configurar ambiente |
 | **Manual/API** | Insomnia/Postman | `backend/tests/manual/` | Testa endpoints manualmente | Validação exploratória e debug |
 
-#### Comandos Rápidos
+---
 
-**Backend:**
+### ⚡ Comandos Rápidos
+
+#### Backend
+
 ```bash
 cd backend
+
 npm test              # Todos os testes
 npm run test:unit     # Apenas unitários
 npm run test:e2e      # Apenas E2E
+npm run test:watch    # Modo watch
 npm run test:coverage # Com cobertura
 ```
 
-**Frontend:**
+#### Frontend
+
 ```bash
 cd frontend
+
 npm test              # Watch mode
-npm run test:run      # Uma vez
+npm run test:run      # Uma vez (CI/CD)
 npm run test:ui       # Interface gráfica
 npm run test:coverage # Com cobertura
 ```
 
-#### Critérios de Qualidade
+---
 
-- **Backend**: Cobertura de código > 80%
-- **Frontend**: Cobertura de código > 80%
-- **E2E**: Todos os fluxos de User Stories testados
-- **Manual**: Coleção completa de testes de API disponível
+### ✅ Critérios de Qualidade
+
+| Métrica | Meta | Status |
+|---------|------|--------|
+| Cobertura Backend | > 80% | ✅ |
+| Cobertura Frontend | > 80% | ✅ |
+| User Stories Testadas | 100% | ✅ |
+| Testes E2E Passando | 100% | ✅ |
+| Coleção Manual Completa | 32 requests | ✅ |
 
 ---
+
+### 🗂️ User Stories Cobertas por Testes
+
+| US | Descrição | Unitário | E2E | Frontend | Manual |
+|----|-----------|----------|-----|----------|--------|
+| US01 | Cadastrar Livro | ✅ | ✅ | ✅ | ✅ |
+| US03 | Excluir Livro | ✅ | ✅ | ✅ | ✅ |
+| US04 | Listar Livros | ✅ | ✅ | ✅ | ✅ |
+| US06 | Registrar Empréstimo | - | ✅ | ✅ | ✅ |
+| US07 | Registrar Devolução | - | ✅ | ✅ | ✅ |
+| US12 | Cadastrar Leitor | - | - | ✅ | - |
+| US14 | Excluir Leitor | - | - | ✅ | - |
+
+---
+
+## 📄 Licença
+
+Este projeto foi desenvolvido para fins educacionais.
+
+---
+
+## 👥 Equipe
+
+Desenvolvido durante a atividade "Scrum na prática".

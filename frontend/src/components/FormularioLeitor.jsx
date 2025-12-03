@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Button, Container, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
+import { apiURL } from '../config/environment';
 
 // Recebe a função 'onLeitorSalvo' do App.jsx
 function FormularioLeitor({ onLeitorSalvo }) {
@@ -14,7 +15,7 @@ function FormularioLeitor({ onLeitorSalvo }) {
 
         try {
             // Envia os dados para o backend (US12)
-            await axios.post('http://localhost:3001/leitores', novoLeitor);
+            await axios.post(`${apiURL}/leitores`, novoLeitor);
 
             alert('Leitor cadastrado com sucesso!');
 

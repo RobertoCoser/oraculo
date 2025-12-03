@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Container, Badge } from 'react-bootstrap';
 import axios from 'axios';
+import { apiURL } from '../config/environment';
 
 // Recebe a função 'onDevolucao' para avisar o App que deve recarregar tudo
 function ListaEmprestimos({ onDevolucao, recarregar }) {
@@ -13,7 +14,7 @@ function ListaEmprestimos({ onDevolucao, recarregar }) {
 
     const fetchEmprestimos = async () => {
         try {
-            const response = await axios.get('http://localhost:3001/emprestimos');
+            const response = await axios.get(`${apiURL}/emprestimos`);
             setEmprestimos(response.data);
         } catch (error) {
             console.error('Erro ao buscar empréstimos:', error);
@@ -23,7 +24,7 @@ function ListaEmprestimos({ onDevolucao, recarregar }) {
     const handleDevolucao = async (id) => {
         if (window.confirm('Confirmar a devolução deste livro?')) {
             try {
-                await axios.put(`http://localhost:3001/emprestimos/${id}`);
+                await axios.put(`${apiURL}/emprestimos/${id}`);
                 alert('Livro devolvido com sucesso!');
                 // Recarrega esta lista e avisa o pai para atualizar livros/leitores
                 fetchEmprestimos();

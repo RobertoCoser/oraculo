@@ -1,6 +1,7 @@
 import React from 'react';
 import { Table, Container, Button } from 'react-bootstrap';
 import axios from 'axios';
+import { apiURL } from '../config/environment';
 
 // Recebe 'leitores' e 'fetchLeitor' do App.jsx
 function ListaLeitor({ leitores, fetchLeitor }) {
@@ -9,7 +10,7 @@ function ListaLeitor({ leitores, fetchLeitor }) {
     const handleDelete = async (id) => {
         try {
             if (window.confirm('Tem certeza que deseja excluir este leitor?')) {
-                await axios.delete(`http://localhost:3001/leitores/${id}`);
+                await axios.delete(`${apiURL}/leitores/${id}` );
                 alert('Leitor excluído com sucesso!');
                 fetchLeitor(); // Recarrega a lista
             }

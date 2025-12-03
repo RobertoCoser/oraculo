@@ -59,7 +59,7 @@ npm install
 npm run dev
 ```
 
-O servidor backend estará rodando em http://localhost:3001.
+O servidor backend estará rodando em http://localhost:3000.
 
 Inclua o `.env` no root de backend dir:
 

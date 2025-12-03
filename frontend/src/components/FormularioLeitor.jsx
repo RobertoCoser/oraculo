@@ -1,72 +1,77 @@
-import React, { useState } from 'react';
-import { Form, Button, Container, Row, Col } from 'react-bootstrap';
+import { useState } from 'react';
+import { Form, Button } from 'react-bootstrap';
 import axios from 'axios';
-import { apiURL } from '../config/environment';
 
-// Recebe a função 'onLeitorSalvo' do App.jsx
+const apiURL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
 function FormularioLeitor({ onLeitorSalvo }) {
     const [nome, setNome] = useState('');
     const [contato, setContato] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-
+        setLoading(true);
+        
         const novoLeitor = { nome, contato };
 
         try {
-            // Envia os dados para o backend (US12)
             await axios.post(`${apiURL}/leitores`, novoLeitor);
-
-            alert('Leitor cadastrado com sucesso!');
-
-            // Limpa o formulário
+            alert('✅ Leitor cadastrado com sucesso!');
             setNome('');
             setContato('');
-
-            // Avisa o App.jsx para recarregar a lista
-            onLeitorSalvo();
-
+            if (onLeitorSalvo) onLeitorSalvo();
         } catch (error) {
-            console.error('Erro ao cadastrar leitor:', error);
-            alert('Erro ao cadastrar leitor.');
+            console.error(error);
+            alert('❌ Erro ao cadastrar leitor.');
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <Container>
-            <Row className="justify-content-md-center mt-5">
-                <Col md={12}>
-                    <h2>US12: Cadastrar Novo Leitor</h2>
-                    <Form onSubmit={handleSubmit}>
-                        <Form.Group className="mb-3" controlId="formNomeLeitor">
-                            <Form.Label>Nome do Leitor</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Digite o nome"
-                                value={nome}
-                                onChange={(e) => setNome(e.target.value)}
-                                required
-                            />
-                        </Form.Group>
+        <>
+            <div className="section-title">
+                <span className="section-icon">👤</span>
+                <h5>Cadastrar Novo Leitor</h5>
+            </div>
+            <Form onSubmit={handleSubmit}>
+                <Form.Group className="mb-3">
+                    <Form.Label>Nome do Leitor</Form.Label>
+                    <Form.Control 
+                        type="text"
+                        placeholder="Digite o nome completo"
+                        value={nome}
+                        onChange={(e) => setNome(e.target.value)}
+                        required
+                    />
+                </Form.Group>
 
-                        <Form.Group className="mb-3" controlId="formContatoLeitor">
-                            <Form.Label>Contato (Email ou Telefone)</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Digite o contato"
-                                value={contato}
-                                onChange={(e) => setContato(e.target.value)}
-                                required
-                            />
-                        </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label>Contato (Email ou Telefone)</Form.Label>
+                    <Form.Control 
+                        type="text"
+                        placeholder="Ex: email@exemplo.com ou (11) 99999-9999"
+                        value={contato}
+                        onChange={(e) => setContato(e.target.value)}
+                        required
+                    />
+                </Form.Group>
 
-                        <Button variant="primary" type="submit">
-                            Cadastrar Leitor
-                        </Button>
-                    </Form>
-                </Col>
-            </Row>
-        </Container>
+                <Button 
+                    variant="success" 
+                    type="submit" 
+                    className="w-100"
+                    disabled={loading}
+                >
+                    {loading ? (
+                        <>⏳ Cadastrando...</>
+                    ) : (
+                        <>➕ Cadastrar Leitor</>
+                    )}
+                </Button>
+            </Form>
+        </>
     );
 }
 

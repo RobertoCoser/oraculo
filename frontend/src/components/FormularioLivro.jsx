@@ -1,95 +1,108 @@
-import React, { useState } from 'react';
-import { Form, Button, Container, Row, Col } from 'react-bootstrap';
+import { useState } from 'react';
+import { Form, Button, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
-import { apiURL } from '../config/environment';
+
+const apiURL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 function FormularioLivro({ onLivroCadastrado }) {
     const [titulo, setTitulo] = useState('');
     const [autor, setAutor] = useState('');
     const [ano, setAno] = useState('');
     const [categoria, setCategoria] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-
-        const novoLivro = {
-            titulo: titulo,
-            autor: autor,
-            ano: parseInt(ano),
-            categoria: categoria
-        };
+        setLoading(true);
+        
+        const novoLivro = { titulo, autor, ano: parseInt(ano), categoria };
 
         try {
             await axios.post(`${apiURL}/livros`, novoLivro);
-            alert('Livro cadastrado com sucesso!');
-
+            alert('✅ Livro cadastrado com sucesso!');
             setTitulo('');
             setAutor('');
             setAno('');
             setCategoria('');
-
-            onLivroCadastrado();
-
+            if (onLivroCadastrado) onLivroCadastrado();
         } catch (error) {
-            console.error('Erro ao cadastrar livro:', error);
-            alert('Erro ao cadastrar livro.');
+            console.error(error);
+            alert('❌ Erro ao cadastrar livro.');
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <Container>
-            <Row className="justify-content-md-center mt-5">
-                <Col md={6}>
-                    <h2>US01: Cadastrar Novo Livro</h2>
-                    <Form onSubmit={handleSubmit}>
+        <>
+            <div className="section-title">
+                <span className="section-icon">📖</span>
+                <h5>Cadastrar Novo Livro</h5>
+            </div>
+            <Form onSubmit={handleSubmit}>
+                <Form.Group className="mb-3">
+                    <Form.Label>Título</Form.Label>
+                    <Form.Control 
+                        type="text"
+                        placeholder="Digite o título do livro"
+                        value={titulo}
+                        onChange={(e) => setTitulo(e.target.value)}
+                        required
+                    />
+                </Form.Group>
 
-                        <Form.Group className="mb-3" controlId="formTitulo">
-                            <Form.Label>Título</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={titulo}
-                                onChange={(e) => setTitulo(e.target.value)}
-                                required
-                            />
-                        </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label>Autor</Form.Label>
+                    <Form.Control 
+                        type="text"
+                        placeholder="Digite o nome do autor"
+                        value={autor}
+                        onChange={(e) => setAutor(e.target.value)}
+                        required
+                    />
+                </Form.Group>
 
-                        <Form.Group className="mb-3" controlId="formAutor">
-                            <Form.Label>Autor</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={autor}
-                                onChange={(e) => setAutor(e.target.value)}
-                                required
-                            />
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="formAno">
+                <Row>
+                    <Col sm={6}>
+                        <Form.Group className="mb-3">
                             <Form.Label>Ano</Form.Label>
-                            <Form.Control
+                            <Form.Control 
                                 type="number"
+                                placeholder="Ex: 2023"
                                 value={ano}
                                 onChange={(e) => setAno(e.target.value)}
                                 required
                             />
                         </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="formCategoria">
+                    </Col>
+                    <Col sm={6}>
+                        <Form.Group className="mb-3">
                             <Form.Label>Categoria</Form.Label>
-                            <Form.Control
+                            <Form.Control 
                                 type="text"
+                                placeholder="Ex: Romance"
                                 value={categoria}
                                 onChange={(e) => setCategoria(e.target.value)}
                                 required
                             />
                         </Form.Group>
+                    </Col>
+                </Row>
 
-                        <Button variant="primary" type="submit">
-                            Cadastrar Livro
-                        </Button>
-                    </Form>
-                </Col>
-            </Row>
-        </Container>
+                <Button 
+                    variant="primary" 
+                    type="submit" 
+                    className="w-100"
+                    disabled={loading}
+                >
+                    {loading ? (
+                        <>⏳ Cadastrando...</>
+                    ) : (
+                        <>➕ Cadastrar Livro</>
+                    )}
+                </Button>
+            </Form>
+        </>
     );
 }
 

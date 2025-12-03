@@ -16,14 +16,14 @@ function App() {
 
   const fetchLivro = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/livros');
+      const response = await axios.get('http://localhost:3000/livros');
       setLivros(response.data);
     } catch (error) { console.error(error); }
   };
 
   const fetchLeitor = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/leitores');
+      const response = await axios.get('http://localhost:3000/leitores');
       setLeitores(response.data);
     } catch (error) { console.error(error); }
   };

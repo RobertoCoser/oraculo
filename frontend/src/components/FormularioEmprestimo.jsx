@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Button, Container, Row, Col, Alert } from 'react-bootstrap';
 import axios from 'axios';
+import { apiURL } from '../config/environment';
 
 // Recebe as listas e a função para recarregar tudo após o empréstimo
 function FormularioEmprestimo({ livros, leitores, onEmprestimoRealizado }) {
@@ -16,7 +17,7 @@ function FormularioEmprestimo({ livros, leitores, onEmprestimoRealizado }) {
         }
 
         try {
-            await axios.post('http://localhost:3001/emprestimos', {
+            await axios.post(`${apiURL}/emprestimos`, {
                 idLivro: idLivroSelecionado,
                 idLeitor: idLeitorSelecionado
             });

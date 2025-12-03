@@ -1,4 +1,3 @@
-import React from 'react';
 import { Table, Container, Button } from 'react-bootstrap';
 import axios from 'axios';
 import { apiURL } from '../config/environment';

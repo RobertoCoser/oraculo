@@ -216,6 +216,148 @@ export function createApp() {
             res.status(500).json({ message: 'Erro interno na devolução' });
         }
         });
+     // ============================================
+    // ROTAS DE LEITORES
+    // ============================================
+
+    // Rota para US12: Cadastrar novo leitor
+    app.post('/leitores', async (req, res) => {
+        try {
+            const { nome, contato } = req.body;
+
+            // Validação básica
+            if (!nome || !contato) {
+                return res.status(400).json({ message: 'Nome e contato são obrigatórios' });
+            }
+
+            const collection = db.collection('leitores');
+            const novoLeitor = { nome, contato };
+            const result = await collection.insertOne(novoLeitor);
+
+            console.log('Leitor inserido com ID:', result.insertedId);
+
+            res.status(201).json({
+                message: 'Leitor cadastrado com sucesso!',
+                insertedId: result.insertedId
+            });
+
+        } catch (error) {
+            console.error('Erro ao inserir leitor no Mongo:', error);
+            res.status(500).json({ message: 'Erro interno ao salvar leitor' });
+        }
+    });
+
+    // Rota para US13: Listar todos os leitores
+    app.get('/leitores', async (req, res) => {
+        try {
+            const collection = db.collection('leitores');
+            const leitores = await collection.find({}).toArray();
+            res.status(200).json(leitores);
+        } catch (error) {
+            console.error('Erro ao buscar leitores:', error);
+            res.status(500).json({ message: 'Erro interno ao buscar leitores' });
+        }
+    });
+
+    // Rota para buscar um leitor por ID
+    app.get('/leitores/:id', async (req, res) => {
+        try {
+            const { id } = req.params;
+
+            if (!ObjectId.isValid(id)) {
+                return res.status(400).json({ message: 'ID inválido' });
+            }
+
+            const collection = db.collection('leitores');
+            const leitor = await collection.findOne({ _id: new ObjectId(id) });
+
+            if (!leitor) {
+                return res.status(404).json({ message: 'Leitor não encontrado' });
+            }
+
+            res.status(200).json(leitor);
+
+        } catch (error) {
+            console.error('Erro ao buscar leitor:', error);
+            res.status(500).json({ message: 'Erro interno ao buscar leitor' });
+        }
+    });
+
+    // Rota para atualizar um leitor
+    app.put('/leitores/:id', async (req, res) => {
+        try {
+            const { id } = req.params;
+            const { nome, contato } = req.body;
+
+            if (!ObjectId.isValid(id)) {
+                return res.status(400).json({ message: 'ID inválido' });
+            }
+
+            if (!nome && !contato) {
+                return res.status(400).json({ message: 'Informe ao menos um campo para atualizar (nome ou contato)' });
+            }
+
+            const collection = db.collection('leitores');
+            
+            // Monta objeto de atualização apenas com campos informados
+            const atualizacao = {};
+            if (nome) atualizacao.nome = nome;
+            if (contato) atualizacao.contato = contato;
+
+            const result = await collection.updateOne(
+                { _id: new ObjectId(id) },
+                { $set: atualizacao }
+            );
+
+            if (result.matchedCount === 0) {
+                return res.status(404).json({ message: 'Leitor não encontrado' });
+            }
+
+            res.status(200).json({ message: 'Leitor atualizado com sucesso!' });
+
+        } catch (error) {
+            console.error('Erro ao atualizar leitor:', error);
+            res.status(500).json({ message: 'Erro interno ao atualizar leitor' });
+        }
+    });
+
+    // Rota para US14: Excluir um leitor
+    app.delete('/leitores/:id', async (req, res) => {
+        try {
+            const { id } = req.params;
+
+            if (!ObjectId.isValid(id)) {
+                return res.status(400).json({ message: 'ID inválido' });
+            }
+
+            const emprestimosCollection = db.collection('emprestimos');
+            const leitoresCollection = db.collection('leitores');
+
+            // Verifica se o leitor tem empréstimos ativos
+            const emprestimoAtivo = await emprestimosCollection.findOne({
+                idLeitor: new ObjectId(id),
+                status: 'ativo'
+            });
+
+            if (emprestimoAtivo) {
+                return res.status(400).json({ 
+                    message: 'Não é possível excluir leitor com empréstimos ativos' 
+                });
+            }
+
+            const result = await leitoresCollection.deleteOne({ _id: new ObjectId(id) });
+
+            if (result.deletedCount === 0) {
+                return res.status(404).json({ message: 'Leitor não encontrado' });
+            }
+
+            res.status(200).json({ message: 'Leitor excluído com sucesso' });
+
+        } catch (error) {
+            console.error('Erro ao excluir leitor:', error);
+            res.status(500).json({ message: 'Erro interno ao excluir leitor' });
+        }
+    });
     return app;
 }
 
